@@ -6,6 +6,7 @@
 // URL สำหรับ Google Apps Script Web App (แก้ไขหลังจาก Deploy Apps Script)
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby8bxH4MgN8gKdHhrhw-oHBRMsIbHogLJPwoEEZTK8et1_yqQFEFvk-PvWjsK34eyUyQw/exec";
 const GOOGLE_SHEETS_ENABLED = true;
+const SHOW_DIRECTORY_TAB = false; // ปิดหน้าทำเนียบรุ่น แสดงเฉพาะฟอร์มลงทะเบียนเท่านั้น
 
 let photoBase64 = "";
 let studentDatabase = [];
@@ -131,6 +132,10 @@ function switchTab(tabName) {
   const dirTab = document.getElementById("tab-directory");
   const formView = document.getElementById("view-form");
   const dirView = document.getElementById("view-directory");
+
+  if (!SHOW_DIRECTORY_TAB) {
+    tabName = "form";
+  }
 
   if (tabName === "form") {
     formTab.classList.add("active");
@@ -634,6 +639,13 @@ function toggleDirectoryVisibility(hasData) {
   const placeholder = document.getElementById("directory-placeholder");
 
   if (!tab || !grid || !placeholder) {
+    return;
+  }
+
+  if (!SHOW_DIRECTORY_TAB) {
+    tab.style.display = "none";
+    grid.style.display = "none";
+    placeholder.style.display = "none";
     return;
   }
 

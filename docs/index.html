@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ฟอร์มเก็บข้อมูลนักศึกษา ป.โท นิติศาสตร์ (กฎหมายมหาชน) ม.รามคำแหง รุ่น 35</title>
+  <meta name="description" content="ระบบลงทะเบียนและเก็บข้อมูลนักศึกษา ปริญญาโท นิติศาสตรมหาบัณฑิต สาขากฎหมายมหาชน มหาวิทยาลัยรามคำแหง รุ่น 35">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header Banner -->
+    <header class="header-banner">
+      <div class="ru-badge">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>หลักสูตรปริญญาโท คณะนิติศาสตร์ มหาวิทยาลัยรามคำแหง</span>
+      </div>
+      <h1 class="header-title">ฟอร์มเก็บข้อมูลนักศึกษา</h1>
+      <h2 class="header-subtitle">สาขาวิชากฎหมายมหาชน (รุ่น 35)</h2>
+      <p class="header-desc">
+        ขอความร่วมมือนักศึกษารุ่น 35 กรอกข้อมูลเพื่อจัดทำทำเนียบรุ่นและใช้สำหรับประสานงานภายในรุ่น
+      </p>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+      <button type="button" class="nav-tab active" id="tab-form" onclick="switchTab('form')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        กรอกข้อมูลการลงทะเบียน
+      </button>
+      <button type="button" class="nav-tab" id="tab-directory" onclick="switchTab('directory')" style="display: none;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        รายชื่อผู้ที่ลงทะเบียนแล้ว
+      </button>
+    </nav>
+
+    <!-- TAB 1: FORM SECTION -->
+    <main id="view-form">
+      <form id="student-form" onsubmit="handleFormSubmit(event)" novalidate>
+
+        <!-- หมวดที่ 1: ข้อมูลส่วนตัว -->
+        <section class="card-section">
+          <h3 class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+            หมวดที่ 1: ข้อมูลส่วนตัว
+          </h3>
+
+          <div class="form-grid">
+
+            <!-- 13. อัพโหลดภาพถ่าย -->
+            <div class="col-12 form-group">
+              <label class="form-label">13. ภาพถ่ายส่วนตัว / รูปโปรไฟล์ <span class="required-star">*</span></label>
+              <div class="photo-upload-container" id="drop-zone">
+                <div class="photo-preview-box" id="photo-preview-container">
+                  <div class="photo-placeholder" id="photo-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                    <span>คลิกหรือลากรูปมาวางที่นี่</span>
+                  </div>
+                  <img id="photo-img-preview" src="" alt="รูปถ่ายนักศึกษา" style="display: none;">
+                </div>
+
+                <div class="upload-btn-wrapper">
+                  <label for="photo-input" class="btn-upload">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    เลือกไฟล์รูปถ่าย
+                  </label>
+                  <input type="file" id="photo-input" accept="image/*" style="display: none;" onchange="handlePhotoSelect(event)">
+                  <button type="button" class="btn-remove-photo" id="btn-remove-photo" onclick="removePhoto()" style="display: none;">ลบรูปภาพ</button>
+                </div>
+                <small style="color: var(--text-muted); font-size: 0.82rem;">รองรับไฟล์ JPG, PNG, WEBP (ขนาดไม่เกิน 5 MB)</small>
+              </div>
+            </div>
+
+            <!-- 1. คำนำหน้าชื่อ -->
+            <div class="col-4 form-group">
+              <label for="prefix" class="form-label">1. คำนำหน้าชื่อ <span class="required-star">*</span></label>
+              <select id="prefix" class="form-select" required onchange="toggleCustomPrefix(this.value)">
+                <option value="">-- เลือกคำนำหน้า --</option>
+                <option value="นาย">นาย</option>
+                <option value="นาง">นาง</option>
+                <option value="นางสาว">นางสาว</option>
+                <option value="ดร.">ดร.</option>
+                <option value="ว่าที่ ร.ต.">ว่าที่ ร.ต.</option>
+                <option value="ว่าที่ ร.ต.หญิง">ว่าที่ ร.ต.หญิง</option>
+                <option value="พ.ต.อ.">พ.ต.อ.</option>
+                <option value="พ.ต.ท.">พ.ต.ท.</option>
+                <option value="พ.ต.ต.">พ.ต.ต.</option>
+                <option value="ร.ต.อ.">ร.ต.อ.</option>
+                <option value="อื่นๆ">อื่นๆ (โปรดระบุ)</option>
+              </select>
+            </div>
+
+            <!-- คำนำหน้าชื่อระบุเอง -->
+            <div class="col-4 form-group" id="custom-prefix-group" style="display: none;">
+              <label for="custom-prefix" class="form-label">ระบุคำนำหน้าชื่อ <span class="required-star">*</span></label>
+              <input type="text" id="custom-prefix" class="form-input" placeholder="เช่น ร้อยเอก, ดร., ฯลฯ">
+            </div>
+
+            <!-- 2. ชื่อ - นามสกุล -->
+            <div class="col-8 form-group">
+              <label for="fullname" class="form-label">2. ชื่อ - นามสกุล <span class="required-star">*</span></label>
+              <input type="text" id="fullname" class="form-input" placeholder="เช่น สมชาย ใจดี" required>
+            </div>
+
+            <!-- 3. ชื่อเล่น -->
+            <div class="col-4 form-group">
+              <label for="nickname" class="form-label">3. ชื่อเล่น <span class="required-star">*</span></label>
+              <input type="text" id="nickname" class="form-input" placeholder="เช่น ต้น" required>
+            </div>
+
+            <!-- 4. เพศ -->
+            <div class="col-5 form-group">
+              <label class="form-label">4. เพศ <span class="required-star">*</span></label>
+              <div class="radio-group">
+                <label class="radio-card" id="gender-male-label">
+                  <input type="radio" name="gender" value="ชาย" required onchange="updateRadioStyle()"> ชาย
+                </label>
+                <label class="radio-card" id="gender-female-label">
+                  <input type="radio" name="gender" value="หญิง" onchange="updateRadioStyle()"> หญิง
+                </label>
+                <label class="radio-card" id="gender-other-label">
+                  <input type="radio" name="gender" value="LGBTQ+" onchange="updateRadioStyle()"> LGBTQ+
+                </label>
+              </div>
+            </div>
+
+            <!-- 5. อายุ -->
+            <div class="col-3 form-group">
+              <label for="age" class="form-label">5. อายุ (ปี) <span class="required-star">*</span></label>
+              <input type="number" id="age" class="form-input" min="18" max="100" placeholder="เช่น 28" required>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- หมวดที่ 2: ข้อมูลการติดต่อ & ที่อยู่ -->
+        <section class="card-section">
+          <h3 class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            หมวดที่ 2: ข้อมูลการติดต่อ & ที่อยู่ปัจจุบัน (เชื่อมต่อ 77 จังหวัด)
+          </h3>
+
+          <div class="form-grid">
+
+            <!-- 7. เบอร์โทรศัพท์ -->
+            <div class="col-4 form-group">
+              <label for="phone" class="form-label">7. เบอร์โทรศัพท์ <span class="required-star">*</span></label>
+              <input type="tel" id="phone" class="form-input" placeholder="เช่น 081-234-5678" required>
+            </div>
+
+            <!-- 8. Line ID -->
+            <div class="col-4 form-group">
+              <label for="lineId" class="form-label">8. Line ID <span class="required-star">*</span></label>
+              <input type="text" id="lineId" class="form-input" placeholder="เช่น line_id_123" required>
+            </div>
+
+            <!-- 9. E-Mail -->
+            <div class="col-4 form-group">
+              <label for="email" class="form-label">9. E-Mail <span class="required-star">*</span></label>
+              <input type="email" id="email" class="form-input" placeholder="เช่น name@email.com" required>
+            </div>
+
+            <!-- 6. ที่อยู่ปัจจุบัน - Cascading Address Selector -->
+            <div class="col-12" style="margin-top: 10px; padding-top: 14px; border-top: 1px dashed rgba(255,255,255,0.1);">
+              <label class="form-label" style="font-size: 1rem; color: var(--accent-gold); margin-bottom: 12px;">
+                6. ที่อยู่ปัจจุบัน (เลือกตามเขตการปกครองในประเทศไทย) <span class="required-star">*</span>
+              </label>
+            </div>
+
+            <!-- เลือกจังหวัด -->
+            <div class="col-3 form-group">
+              <label for="addr-province" class="form-label">จังหวัด <span class="required-star">*</span></label>
+              <select id="addr-province" class="form-select" required onchange="onProvinceChange(this.value)">
+                <option value="">-- เลือกจังหวัด --</option>
+              </select>
+            </div>
+
+            <!-- เลือกอำเภอ/เขต -->
+            <div class="col-3 form-group">
+              <label for="addr-district" class="form-label">อำเภอ / เขต <span class="required-star">*</span></label>
+              <select id="addr-district" class="form-select" required onchange="onDistrictChange(this.value)" disabled>
+                <option value="">-- เลือกอำเภอ/เขต --</option>
+              </select>
+            </div>
+
+            <!-- เลือกตำบล/แขวง -->
+            <div class="col-3 form-group">
+              <label for="addr-subdistrict" class="form-label">ตำบล / แขวง <span class="required-star">*</span></label>
+              <select id="addr-subdistrict" class="form-select" required onchange="onSubdistrictChange(this.value)" disabled>
+                <option value="">-- เลือกตำบล/แขวง --</option>
+              </select>
+            </div>
+
+            <!-- รหัสไปรษณีย์ -->
+            <div class="col-3 form-group">
+              <label for="addr-zipcode" class="form-label">รหัสไปรษณีย์ <span class="required-star">*</span></label>
+              <input type="text" id="addr-zipcode" class="form-input" placeholder="เช่น 10240" required oninput="onZipcodeSearch(this.value)">
+            </div>
+
+            <!-- รายละเอียดที่อยู่เพิ่มเติม -->
+            <div class="col-12 form-group">
+              <label for="addr-detail" class="form-label">บ้านเลขที่ / หมู่บ้าน / อาคาร / ถนน / ซอย <span class="required-star">*</span></label>
+              <input type="text" id="addr-detail" class="form-input" placeholder="เช่น 99/1 หมู่ 2 ถนนรามคำแหง ซอยรามคำแหง 24" required oninput="updateFullAddressSummary()">
+            </div>
+
+            <!-- สรุปที่อยู่ปัจจุบันสมบูรณ์ -->
+            <div class="col-12 form-group">
+              <label class="form-label">ที่อยู่ปัจจุบันที่สมบูรณ์ (Auto-Generated)</label>
+              <input type="text" id="address" class="form-input" readonly style="background: rgba(15, 23, 42, 0.9); color: #fef08a; font-weight: 500;" placeholder="ระบบจะสรุปที่อยู่อัตโนมัติจากตัวเลือกด้านบน...">
+            </div>
+
+          </div>
+        </section>
+
+        <!-- หมวดที่ 3: ประวัติการศึกษาและการทำงาน -->
+        <section class="card-section">
+          <h3 class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            หมวดที่ 3: ประวัติการศึกษาและการทำงาน
+          </h3>
+
+          <div class="form-grid">
+
+            <!-- 10. ประวัติการศึกษา -->
+            <div class="col-12 form-group">
+              <label for="education" class="form-label">10. ประวัติการศึกษา <span class="required-star">*</span></label>
+              <textarea id="education" class="form-textarea" placeholder="เช่น นิติศาสตรบัณฑิต (น.บ.) มหาวิทยาลัยรามคำแหง" required></textarea>
+            </div>
+
+            <!-- 11. ตำแหน่งงานปัจจุบัน -->
+            <div class="col-6 form-group">
+              <label for="position" class="form-label">11. ตำแหน่งงานปัจจุบัน <span class="required-star">*</span></label>
+              <input type="text" id="position" class="form-input" placeholder="เช่น นิติกรชำนาญการ, ทนายความ, ข้าราชการ" required>
+            </div>
+
+            <!-- 12. สถานที่ทำงาน -->
+            <div class="col-6 form-group">
+              <label for="workplace" class="form-label">12. สถานที่ทำงาน <span class="required-star">*</span></label>
+              <input type="text" id="workplace" class="form-input" placeholder="เช่น สำนักงานคณะกรรมการกฤษฎีกา, บริษัท..." required>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Submit & Action Buttons -->
+        <div style="display: flex; gap: 12px; margin-top: 20px;">
+          <button type="submit" class="btn-submit" id="btn-submit">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            บันทึกข้อมูลลงทะเบียน
+          </button>
+          <button type="button" class="btn-reset" onclick="resetForm()">ล้างข้อมูล</button>
+        </div>
+
+      </form>
+    </main>
+
+    <!-- TAB 2: DIRECTORY SECTION -->
+    <main id="view-directory" style="display: none;">
+      <section class="card-section">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;" class="no-print">
+          <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <h3 class="section-title" style="margin-bottom: 0; border: none; padding: 0;">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              ทำเนียบนิสิตรุ่น 35
+            </h3>
+            <span id="directory-status" class="directory-status loading">กำลังโหลดข้อมูลจากระบบ...</span>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+            <input type="text" id="search-directory" class="form-input" placeholder="ค้นหาชื่อ, ตำแหน่ง, สถานที่ทำงาน..." oninput="filterDirectory(this.value)" style="width: 220px;">
+            
+            <button type="button" class="btn-export btn-pdf" onclick="exportPDF()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              ดาวน์โหลด PDF
+            </button>
+            <button type="button" class="btn-export btn-excel" onclick="exportExcel()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h8M8 17h8M10 9h4"/></svg>
+              ดาวน์โหลด Excel (.csv)
+            </button>
+            <button type="button" class="btn-export btn-json" onclick="exportJSONData()">
+              JSON
+            </button>
+          </div>
+        </div>
+
+        <div class="printable-header" style="display: none;">
+          <h2 style="text-align: center; margin-bottom: 4px; color: #1e3a8a;">ทำเนียบนิสิตปริญญาโท นิติศาสตร์ (กฎหมายมหาชน) มหาวิทยาลัยรามคำแหง รุ่น 35</h2>
+          <p style="text-align: center; margin-bottom: 20px; font-size: 0.9rem; color: #475569;">พิมพ์เมื่อวันที่: <span id="print-date"></span></p>
+        </div>
+
+        <div id="directory-placeholder" class="directory-placeholder">
+          <div class="directory-placeholder-icon">📋</div>
+          <h4>ทำเนียบรุ่นนี้ยังไม่เปิดให้แสดงรายชื่อผู้ลงทะเบียน</h4>
+          <p>ข้อมูลจะถูกแสดงเมื่อมีผู้ลงทะเบียนผ่านระบบและเชื่อมต่อกับ Google Sheet สำเร็จแล้ว</p>
+        </div>
+        <div class="directory-grid" id="directory-grid" style="display: none;">
+          <!-- Dynamically populated student cards -->
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer-credits no-print">
+      <p>© 2026 นิติศาสตรมหาบัณฑิต (กฎหมายมหาชน) มหาวิทยาลัยรามคำแหง รุ่น 35</p>
+    </footer>
+  </div>
+
+  <!-- Toast Alert -->
+  <div id="toast-container" class="no-print"></div>
+
+  <!-- Script ฐานข้อมูลที่อยู่ประเทศไทย และ Logic -->
+  <script src="thailand-address-data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

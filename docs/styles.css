@@ -103,10 +103,10 @@ body {
   letter-spacing: 0.5px;
 }
 
-.ru-badge svg {
-  width: 18px;
-  height: 18px;
-  fill: var(--accent-gold);
+.ru-badge .ru-logo {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
 }
 
 .header-title {

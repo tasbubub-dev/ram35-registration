@@ -10,6 +10,7 @@ const SHOW_DIRECTORY_TAB = true; // แสดงหน้าทำเนีย�
 
 let photoBase64 = "";
 let studentDatabase = [];
+let currentRenderedList = [];
 
 const THAI_ADMIN_KEY_FIXES = {
   "กรุงเทพ���หานคร": "กรุงเทพมหานคร",
@@ -747,11 +748,52 @@ function normalizeDriveImageUrl(url) {
   return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
 }
 
+// 14c. แก้เบอร์โทรศัพท์ที่ Google Sheet ตัดเลข 0 หน้าออก (เพราะแปลงเป็นตัวเลข) ให้กลับมาขึ้นต้นด้วย 0
+function normalizePhoneDigits(raw) {
+  let digits = String(raw || "").replace(/\D/g, "");
+  if (digits.length === 9 && !digits.startsWith("0")) {
+    digits = "0" + digits;
+  }
+  return digits;
+}
+
+function formatPhoneDisplay(raw) {
+  const digits = normalizePhoneDigits(raw);
+  if (digits.length === 10) {
+    return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+  }
+  return digits || (raw || "-");
+}
+
+// 14d. สร้าง HTML ส่วนข้อมูล (ชื่อ + รายละเอียด) ใช้ร่วมกันทั้งการ์ดย่อและหน้าต่างขยาย
+function buildStudentBodyHtml(st) {
+  const phoneDigits = normalizePhoneDigits(st.phone);
+  const callBtn = phoneDigits
+    ? `<a class="btn-call" href="tel:${phoneDigits}" onclick="event.stopPropagation()">📞 โทร</a>`
+    : "";
+
+  return `
+    <h4 class="student-card-name">${st.finalPrefix}${st.fullname}</h4>
+    <span class="student-card-nickname">ชื่อเล่น: ${st.nickname || '-'}</span>
+    <div class="student-card-info">
+      <p><strong>อายุ:</strong> ${st.age} ปี (${st.gender})</p>
+      <p><strong>ตำแหน่ง:</strong> ${st.position}</p>
+      <p><strong>หน่วยงาน:</strong> ${st.workplace}</p>
+      <p><strong>โทรศัพท์:</strong> ${formatPhoneDisplay(st.phone)} ${callBtn}</p>
+      <p><strong>Line ID:</strong> ${st.lineId}</p>
+      <p><strong>E-Mail:</strong> ${st.email}</p>
+      <p style="margin-top: 4px;"><strong>ที่อยู่:</strong> ${st.address}</p>
+      <p style="margin-top: 4px; font-size: 0.8rem; color: var(--text-muted);"><strong>การศึกษา:</strong> ${st.education}</p>
+    </div>
+  `;
+}
+
 // 15. แสดงผลรายชื่อทำเนียบนิสิต (Directory Renderer)
 function renderDirectory(filteredList = null) {
   const grid = document.getElementById("directory-grid");
   const countSpan = document.getElementById("directory-count");
   const list = filteredList !== null ? filteredList : studentDatabase;
+  currentRenderedList = list;
 
   if (!grid) {
     return;
@@ -773,28 +815,43 @@ function renderDirectory(filteredList = null) {
     return;
   }
 
-  grid.innerHTML = list.map((st) => {
+  grid.innerHTML = list.map((st, idx) => {
     const avatar = normalizeDriveImageUrl(st.photoBase64) || `https://ui-avatars.com/api/?name=${encodeURIComponent(st.fullname)}&background=1e3a8a&color=ffffff&size=128`;
     return `
-      <div class="student-card">
+      <div class="student-card" onclick="openStudentDetail(${idx})">
         <img src="${avatar}" alt="${st.fullname}" class="student-card-img">
         <div class="student-card-body">
-          <h4 class="student-card-name">${st.finalPrefix}${st.fullname}</h4>
-          <span class="student-card-nickname">ชื่อเล่น: ${st.nickname || '-'}</span>
-          <div class="student-card-info">
-            <p><strong>อายุ:</strong> ${st.age} ปี (${st.gender})</p>
-            <p><strong>ตำแหน่ง:</strong> ${st.position}</p>
-            <p><strong>หน่วยงาน:</strong> ${st.workplace}</p>
-            <p><strong>โทรศัพท์:</strong> ${st.phone}</p>
-            <p><strong>Line ID:</strong> ${st.lineId}</p>
-            <p><strong>E-Mail:</strong> ${st.email}</p>
-            <p style="margin-top: 4px;"><strong>ที่อยู่:</strong> ${st.address}</p>
-            <p style="margin-top: 4px; font-size: 0.8rem; color: var(--text-muted);"><strong>การศึกษา:</strong> ${st.education}</p>
-          </div>
+          ${buildStudentBodyHtml(st)}
         </div>
       </div>
     `;
   }).join('');
+}
+
+// 15b. คลิ๊กที่ภาพเพื่อขยายดูข้อมูลทั้งหมดของแต่ละคน
+function openStudentDetail(idx) {
+  const st = currentRenderedList[idx];
+  const modal = document.getElementById("student-detail-modal");
+  if (!st || !modal) {
+    return;
+  }
+
+  const avatar = normalizeDriveImageUrl(st.photoBase64) || `https://ui-avatars.com/api/?name=${encodeURIComponent(st.fullname)}&background=1e3a8a&color=ffffff&size=256`;
+  document.getElementById("modal-student-img").src = avatar;
+  document.getElementById("modal-student-img").alt = st.fullname;
+  document.getElementById("modal-student-body").innerHTML = buildStudentBodyHtml(st);
+
+  modal.style.display = "flex";
+  document.body.style.overflow = "hidden";
+}
+
+function closeStudentDetail() {
+  const modal = document.getElementById("student-detail-modal");
+  if (!modal) {
+    return;
+  }
+  modal.style.display = "none";
+  document.body.style.overflow = "";
 }
 
 // 16. ค้นหาใน ทำเนียบ Directory

@@ -172,6 +172,9 @@ function saveStudentRecord(data) {
   var sheet = sheetInfo.sheet;
   ensureHeaderRow(sheet);
 
+  // บังคับคอลัมน์เบอร์โทรศัพท์ (H) ให้เป็นข้อความล้วน ป้องกัน Sheets ตัดเลข 0 นำหน้าออกเวลาแปลงเป็นตัวเลข
+  sheet.getRange("H:H").setNumberFormat("@");
+
   // จัดการอัปโหลดไฟล์รูปภาพลง Google Drive
   var photoUrl = "ไม่มีรูปภาพ";
   if (data.photoBase64 && data.photoBase64.indexOf("data:image") !== -1) {

@@ -18,7 +18,7 @@
         <img src="ramicon.png" alt="ตราสัญลักษณ์มหาวิทยาลัยรามคำแหง" class="ru-logo">
         <span>หลักสูตรปริญญาโท คณะนิติศาสตร์ มหาวิทยาลัยรามคำแหง</span>
       </div>
-      <h1 class="header-title">ฟอร์มเก็บข้อมูลนักศึกษา</h1>
+      <h1 class="header-title">ทำเนียบรุ่น นักศึกษา</h1>
       <h2 class="header-subtitle">สาขาวิชากฎหมายมหาชน (รุ่น 35)</h2>
       <p class="header-desc">
         ขอความร่วมมือนักศึกษารุ่น 35 กรอกข้อมูลเพื่อจัดทำทำเนียบรุ่นและใช้สำหรับประสานงานภายในรุ่น
@@ -296,6 +296,15 @@
         </div>
       </section>
     </main>
+
+    <!-- Modal: ขยายดูข้อมูลนักศึกษาแบบเต็ม -->
+    <div id="student-detail-modal" class="modal-overlay no-print" style="display: none;" onclick="closeStudentDetail()">
+      <div class="modal-box" onclick="event.stopPropagation()">
+        <button type="button" class="modal-close" onclick="closeStudentDetail()">&times;</button>
+        <img id="modal-student-img" src="" alt="" class="modal-student-img">
+        <div id="modal-student-body" class="modal-student-body"></div>
+      </div>
+    </div>
 
     <footer class="footer-credits no-print">
       <p>© 2026 นิติศาสตรมหาบัณฑิต (กฎหมายมหาชน) มหาวิทยาลัยรามคำแหง รุ่น 35</p>

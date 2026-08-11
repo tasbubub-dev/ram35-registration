@@ -134,17 +134,19 @@ body {
 
 /* Nav Tabs */
 .nav-tabs {
+  position: relative;
   display: flex;
-  background: rgba(15, 23, 42, 0.8);
-  padding: 6px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--card-border);
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  padding: 0;
+  border: none;
   margin-bottom: 24px;
+  min-height: 56px;
   gap: 6px;
 }
 
 .nav-tab {
-  flex: 1;
   padding: 12px 20px;
   border: none;
   background: transparent;
@@ -170,6 +172,64 @@ body {
 .nav-tab:hover:not(.active) {
   color: var(--text-light);
   background: rgba(255, 255, 255, 0.05);
+}
+
+/* ทำเนียบรุ่น = หัวข้อหลักตรงกลางหน้า */
+#tab-directory {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-light);
+  padding: 10px 18px;
+}
+
+#tab-directory svg {
+  width: 26px;
+  height: 26px;
+}
+
+#tab-directory.active {
+  background: transparent;
+  color: var(--accent-gold);
+  box-shadow: none;
+}
+
+#tab-directory:hover:not(.active) {
+  background: transparent;
+  color: var(--accent-gold);
+}
+
+/* กรอกข้อมูลการลงทะเบียน = หัวข้อเล็กมุมขวาบน */
+#tab-form {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 6px 12px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm);
+}
+
+#tab-form svg {
+  width: 14px;
+  height: 14px;
+}
+
+#tab-form.active {
+  background: var(--royal-blue);
+  box-shadow: 0 4px 12px rgba(30, 58, 138, 0.4);
+}
+
+@media (max-width: 640px) {
+  .nav-tabs {
+    flex-direction: column;
+    padding-top: 36px;
+  }
+  #tab-form {
+    top: 0;
+    right: 0;
+  }
 }
 
 /* Card Section */
@@ -222,36 +282,6 @@ body {
   .header-title { font-size: 1.45rem; }
   .header-subtitle { font-size: 1rem; }
   .card-section { padding: 20px 16px; }
-}
-
-/* Directory Status */
-.directory-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 0.84rem;
-  font-weight: 600;
-  border: 1px solid transparent;
-}
-
-.directory-status.loading {
-  background: rgba(59, 130, 246, 0.16);
-  color: #bfdbfe;
-  border-color: rgba(59, 130, 246, 0.3);
-}
-
-.directory-status.ready {
-  background: rgba(16, 185, 129, 0.16);
-  color: #a7f3d0;
-  border-color: rgba(16, 185, 129, 0.3);
-}
-
-.directory-status.error {
-  background: rgba(239, 68, 68, 0.16);
-  color: #fecaca;
-  border-color: rgba(239, 68, 68, 0.3);
 }
 
 /* Form Controls */
@@ -531,17 +561,18 @@ body {
 }
 .btn-excel:hover { background: #047857; }
 
-.btn-json {
-  background: #475569;
-  color: #ffffff;
-}
-.btn-json:hover { background: #334155; }
-
 /* Directory / Cards Grid */
 .directory-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .directory-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
 }
 
 .student-card {
@@ -565,13 +596,22 @@ body {
 }
 
 .student-card-img {
-  width: 95px;
-  height: 110px;
+  width: 120px;
+  height: 160px;
+  aspect-ratio: 3 / 4;
+  flex-shrink: 0;
   border-radius: var(--radius-sm);
   border: 2px solid var(--accent-gold);
   object-fit: cover;
   margin-bottom: 12px;
   background: #020617;
+}
+
+.student-card-body {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .student-card-name {

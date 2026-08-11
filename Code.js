@@ -265,8 +265,9 @@ function savePhotoToDrive(base64Data, studentName) {
     var file = folder.createFile(blob);
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
 
-    // ใช้ลิงก์แสดงรูปภาพโดยตรง (ใช้กับ <img src> ได้ทันที ต่างจาก file.getUrl() ที่เป็นหน้า Preview)
-    return "https://drive.google.com/uc?export=view&id=" + file.getId();
+    // ใช้ลิงก์ thumbnail แสดงรูปภาพโดยตรง (ใช้กับ <img src> ได้ทันที)
+    // หมายเหตุ: เดิมใช้ uc?export=view แต่ Google บล็อกการฝังรูปด้วยลิงก์รูปแบบนี้แล้ว
+    return "https://drive.google.com/thumbnail?id=" + file.getId() + "&sz=w1000";
   } catch (e) {
     Logger.log("Save Photo Error: " + e.toString());
     return "เกิดข้อผิดพลาดในการบันทึกรูปภาพ: " + e.toString();

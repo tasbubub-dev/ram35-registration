@@ -6,7 +6,7 @@
 // URL สำหรับ Google Apps Script Web App (แก้ไขหลังจาก Deploy Apps Script)
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby8bxH4MgN8gKdHhrhw-oHBRMsIbHogLJPwoEEZTK8et1_yqQFEFvk-PvWjsK34eyUyQw/exec";
 const GOOGLE_SHEETS_ENABLED = true;
-const SHOW_DIRECTORY_TAB = false; // ปิดหน้าทำเนียบรุ่น แสดงเฉพาะฟอร์มลงทะเบียนเท่านั้น
+const SHOW_DIRECTORY_TAB = true; // แสดงหน้าทำเนียบรุ่น
 
 let photoBase64 = "";
 let studentDatabase = [];
@@ -732,6 +732,21 @@ async function loadDirectoryFromSheet() {
   }
 }
 
+// 14b. แปลงลิงก์รูป Google Drive รูปแบบเก่า (uc?export=view) ที่ Google บล็อกการฝังรูปแล้ว
+// ให้เป็นลิงก์ thumbnail ที่ใช้กับ <img src> ได้จริง
+function normalizeDriveImageUrl(url) {
+  if (!url || url.indexOf("drive.google.com") === -1) {
+    return url;
+  }
+
+  const match = url.match(/[?&]id=([^&]+)/) || url.match(/\/d\/([^/]+)/);
+  if (!match) {
+    return url;
+  }
+
+  return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
+}
+
 // 15. แสดงผลรายชื่อทำเนียบนิสิต (Directory Renderer)
 function renderDirectory(filteredList = null) {
   const grid = document.getElementById("directory-grid");
@@ -759,21 +774,23 @@ function renderDirectory(filteredList = null) {
   }
 
   grid.innerHTML = list.map((st) => {
-    const avatar = st.photoBase64 || `https://ui-avatars.com/api/?name=${encodeURIComponent(st.fullname)}&background=1e3a8a&color=ffffff&size=128`;
+    const avatar = normalizeDriveImageUrl(st.photoBase64) || `https://ui-avatars.com/api/?name=${encodeURIComponent(st.fullname)}&background=1e3a8a&color=ffffff&size=128`;
     return `
       <div class="student-card">
         <img src="${avatar}" alt="${st.fullname}" class="student-card-img">
-        <h4 class="student-card-name">${st.finalPrefix}${st.fullname}</h4>
-        <span class="student-card-nickname">ชื่อเล่น: ${st.nickname || '-'}</span>
-        <div class="student-card-info">
-          <p><strong>อายุ:</strong> ${st.age} ปี (${st.gender})</p>
-          <p><strong>ตำแหน่ง:</strong> ${st.position}</p>
-          <p><strong>หน่วยงาน:</strong> ${st.workplace}</p>
-          <p><strong>โทรศัพท์:</strong> ${st.phone}</p>
-          <p><strong>Line ID:</strong> ${st.lineId}</p>
-          <p><strong>E-Mail:</strong> ${st.email}</p>
-          <p style="margin-top: 4px;"><strong>ที่อยู่:</strong> ${st.address}</p>
-          <p style="margin-top: 4px; font-size: 0.8rem; color: var(--text-muted);"><strong>การศึกษา:</strong> ${st.education}</p>
+        <div class="student-card-body">
+          <h4 class="student-card-name">${st.finalPrefix}${st.fullname}</h4>
+          <span class="student-card-nickname">ชื่อเล่น: ${st.nickname || '-'}</span>
+          <div class="student-card-info">
+            <p><strong>อายุ:</strong> ${st.age} ปี (${st.gender})</p>
+            <p><strong>ตำแหน่ง:</strong> ${st.position}</p>
+            <p><strong>หน่วยงาน:</strong> ${st.workplace}</p>
+            <p><strong>โทรศัพท์:</strong> ${st.phone}</p>
+            <p><strong>Line ID:</strong> ${st.lineId}</p>
+            <p><strong>E-Mail:</strong> ${st.email}</p>
+            <p style="margin-top: 4px;"><strong>ที่อยู่:</strong> ${st.address}</p>
+            <p style="margin-top: 4px; font-size: 0.8rem; color: var(--text-muted);"><strong>การศึกษา:</strong> ${st.education}</p>
+          </div>
         </div>
       </div>
     `;
@@ -878,23 +895,6 @@ function exportExcel() {
   link.click();
   document.body.removeChild(link);
   showToast("ดาวน์โหลดไฟล์ Excel (.csv) เรียบร้อยแล้ว", "success");
-}
-
-// 20. ดาวน์โหลดข้อมูลเป็นไฟล์ JSON
-function exportJSONData() {
-  if (studentDatabase.length === 0) {
-    showToast("ยังไม่มีข้อมูลสำหรับดาวน์โหลด", "error");
-    return;
-  }
-
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(studentDatabase, null, 2));
-  const downloadAnchor = document.createElement("a");
-  downloadAnchor.setAttribute("href", dataStr);
-  downloadAnchor.setAttribute("download", `RAM35_PublicLaw_Students_${new Date().toISOString().slice(0,10)}.json`);
-  document.body.appendChild(downloadAnchor);
-  downloadAnchor.click();
-  downloadAnchor.remove();
-  showToast("ดาวน์โหลดไฟล์ JSON เรียบร้อยแล้ว", "success");
 }
 
 // 21. ระบบการแจ้งเตือน Toast Alert

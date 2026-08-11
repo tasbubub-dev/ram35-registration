@@ -526,16 +526,22 @@ body {
 .btn-excel:hover { background: #047857; }
 
 /* Directory / Cards Grid */
+/* จำกัดพื้นที่แสดงผลไว้พอดี 2 แถว (การ์ดสัดส่วน 3:4) ไม่ให้แถวที่ 3 โผล่มาเล็กน้อย ส่วนที่เหลือเลื่อนดูได้ */
 .directory-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
+  container-type: inline-size;
+  max-height: calc((100cqw - 40px) * 8 / 9 + 20px);
+  overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 
 @media (max-width: 768px) {
   .directory-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 14px;
+    max-height: calc((100cqw - 14px) * 4 / 3 + 14px);
   }
 }
 
@@ -774,6 +780,8 @@ body {
   .directory-grid {
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 16px !important;
+    max-height: none !important;
+    overflow: visible !important;
   }
   .student-card {
     background: #f8fafc !important;

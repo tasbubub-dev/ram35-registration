@@ -9,6 +9,8 @@ const GOOGLE_SHEETS_ENABLED = true;
 const SHOW_DIRECTORY_TAB = true; // แสดงหน้าทำเนียบรุ่น
 
 let photoBase64 = "";
+let photoCropStyle = "";
+let photoCropDetectionPromise = null;
 let studentDatabase = [];
 let currentRenderedList = [];
 
@@ -340,6 +342,91 @@ function setupDragAndDrop() {
   });
 }
 
+// 10a. ตรวจจับใบหน้าอัตโนมัติในรูปที่อัปโหลด เพื่อคำนวณตำแหน่ง/ขนาดครอปให้หัว-อกอยู่ในกรอบเหมือนกันทุกคน
+// โหลดไลบรารีแบบ lazy (โหลดเฉพาะตอนมีคนเลือกรูปจริง) เพื่อไม่ให้หน้าทำเนียบที่ไม่ได้ใช้ฟอร์มโหลดช้าลง
+// ถ้าโหลดไม่สำเร็จหรือหาใบหน้าไม่เจอ จะไม่ครอป (ใช้ค่า default เดิม) ไม่มีผลกับการส่งฟอร์ม
+const FACE_API_SCRIPT_URL = "https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js";
+const FACE_API_MODEL_URL = "https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights";
+// สัดส่วน (ความสูงใบหน้า/ภาพ) และ (ระยะขอบบนถึงหัวใบหน้า/ภาพ) ของกรอบที่ถือว่า "พอดี" อิงจากรูปต้นแบบที่ครอปสวยอยู่แล้ว
+const FACE_CROP_TARGET_RATIO = 0.3197;
+const FACE_CROP_TARGET_TOP_RATIO = 0.1760;
+const FACE_CROP_MIN_SCORE = 0.6;
+
+let faceApiLibraryPromise = null;
+let faceApiModelPromise = null;
+
+function ensureFaceApiLibraryLoaded() {
+  if (typeof faceapi !== "undefined") {
+    return Promise.resolve();
+  }
+  if (!faceApiLibraryPromise) {
+    faceApiLibraryPromise = new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = FACE_API_SCRIPT_URL;
+      script.onload = resolve;
+      script.onerror = () => reject(new Error("โหลดไลบรารีตรวจจับใบหน้าไม่สำเร็จ"));
+      document.head.appendChild(script);
+    });
+  }
+  return faceApiLibraryPromise;
+}
+
+function ensureFaceApiModelLoaded() {
+  if (!faceApiModelPromise) {
+    faceApiModelPromise = ensureFaceApiLibraryLoaded().then(() =>
+      faceapi.nets.tinyFaceDetector.loadFromUri(FACE_API_MODEL_URL)
+    );
+  }
+  return faceApiModelPromise;
+}
+
+// คำนวณ CSS style (width/height/left/top เป็น %) จากกรอบใบหน้าที่ตรวจพบ ให้ครอปได้สัดส่วนหัว-อกเหมือนรูปต้นแบบ
+// คืนค่าว่างถ้ารูปมีขนาดพอดีอยู่แล้ว (ไม่ต้องครอปเพิ่ม) หรือกรอบครอปที่ต้องการเกินขอบเขตของรูปต้นฉบับ
+function computeFaceCropStyle(faceBox, imgW, imgH) {
+  const faceCx = faceBox.x + faceBox.width / 2;
+  const cropH = faceBox.height / FACE_CROP_TARGET_RATIO;
+  const cropW = cropH * 0.75;
+
+  if (cropH >= imgH * 0.97 || cropW >= imgW * 0.97) {
+    return "";
+  }
+
+  let topPx = faceBox.y - FACE_CROP_TARGET_TOP_RATIO * cropH;
+  let leftPx = faceCx - cropW / 2;
+  topPx = Math.max(0, Math.min(topPx, imgH - cropH));
+  leftPx = Math.max(0, Math.min(leftPx, imgW - cropW));
+
+  const widthPct = (imgW / cropW) * 100;
+  const heightPct = (imgH / cropH) * 100;
+  const leftPct = -(leftPx / cropW) * 100;
+  const topPct = -(topPx / cropH) * 100;
+
+  return `position:absolute; width:${widthPct.toFixed(1)}%; height:${heightPct.toFixed(1)}%; left:${leftPct.toFixed(1)}%; top:${topPct.toFixed(1)}%;`;
+}
+
+// ตรวจจับใบหน้าในภาพที่เพิ่งอัปโหลด (canvas ที่ resize แล้ว) แล้วคืนค่า crop style ที่จะบันทึกคู่กับข้อมูลนักศึกษา
+async function detectPhotoCropStyle(canvas) {
+  try {
+    await ensureFaceApiModelLoaded();
+    const detections = await faceapi.detectAllFaces(
+      canvas,
+      new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: FACE_CROP_MIN_SCORE })
+    );
+    if (!detections || detections.length === 0) {
+      return "";
+    }
+    const best = detections.reduce((a, b) => (b.score > a.score ? b : a));
+    if (best.score < FACE_CROP_MIN_SCORE) {
+      return "";
+    }
+    const box = { x: best.box.x, y: best.box.y, width: best.box.width, height: best.box.height };
+    return computeFaceCropStyle(box, canvas.width, canvas.height);
+  } catch (err) {
+    console.warn("ตรวจจับใบหน้าอัตโนมัติไม่สำเร็จ (จะใช้ตำแหน่งครอปปกติแทน):", err);
+    return "";
+  }
+}
+
 function handlePhotoSelect(e) {
   const files = e.target.files;
   if (files.length > 0) {
@@ -388,6 +475,13 @@ function processPhotoFile(file) {
       setPhotoPreviewState(photoBase64);
 
       showToast("อัปโหลดรูปถ่ายเรียบร้อยแล้ว", "success");
+
+      photoCropStyle = "";
+      photoCropDetectionPromise = detectPhotoCropStyle(canvas).then((style) => {
+        photoCropStyle = style;
+        saveDraft();
+        return style;
+      });
       saveDraft();
     };
     img.src = e.target.result;
@@ -397,6 +491,8 @@ function processPhotoFile(file) {
 
 function removePhoto() {
   photoBase64 = "";
+  photoCropStyle = "";
+  photoCropDetectionPromise = null;
   document.getElementById("photo-input").value = "";
   setPhotoPreviewState("");
   saveDraft();
@@ -453,6 +549,7 @@ function restoreDraft() {
 
     if (draft.photoBase64) {
       photoBase64 = draft.photoBase64;
+      photoCropStyle = draft.photoCropStyle || "";
       setPhotoPreviewState(photoBase64);
     }
   } catch (err) {
@@ -491,6 +588,7 @@ function getFormDataObject() {
     position: document.getElementById("position").value.trim(),
     workplace: document.getElementById("workplace").value.trim(),
     photoBase64: photoBase64,
+    photoCropStyle: photoCropStyle,
   };
 }
 
@@ -527,6 +625,14 @@ async function submitToSheet(data) {
 // 13. จัดการส่งข้อมูลฟอร์ม (Form Submission)
 async function handleFormSubmit(e) {
   e.preventDefault();
+
+  if (photoCropDetectionPromise) {
+    try {
+      await photoCropDetectionPromise;
+    } catch (err) {
+      // เพิกเฉยได้ ถ้าตรวจจับใบหน้าไม่สำเร็จก็แค่ไม่ครอปพิเศษ ไม่กระทบการส่งฟอร์ม
+    }
+  }
 
   const data = getFormDataObject();
 
@@ -835,8 +941,13 @@ const PHOTO_CROP_OVERRIDES = {
   "1lKP1w90g912PK68NakLaXUupkCVq8ZGj": "position:absolute; width:455.6%; height:455.6%; left:-157.3%; top:-190.8%;" // นันทพงษ์ ลือกำลัง
 };
 
-function getPhotoCropStyle(photoUrl) {
-  const fileId = extractDriveFileId(photoUrl);
+// ลำดับความสำคัญ: ค่าที่คำนวณตอนอัปโหลดแล้วบันทึกลง Sheet (st.photoCropStyle) มาก่อน
+// ถ้าไม่มี (เช่นข้อมูลเก่าก่อนมีระบบนี้) จึงย้อนไปดูตาราง PHOTO_CROP_OVERRIDES ที่คำนวณไว้ล่วงหน้า
+function getPhotoCropStyle(st) {
+  if (st && st.photoCropStyle) {
+    return st.photoCropStyle;
+  }
+  const fileId = extractDriveFileId(st && st.photoBase64);
   return (fileId && PHOTO_CROP_OVERRIDES[fileId]) || "";
 }
 
@@ -869,7 +980,7 @@ function renderDirectory(filteredList = null) {
 
   grid.innerHTML = list.map((st, idx) => {
     const avatar = normalizeDriveImageUrl(st.photoBase64) || `https://ui-avatars.com/api/?name=${encodeURIComponent(st.fullname)}&background=1e3a8a&color=ffffff&size=128`;
-    const cropStyle = getPhotoCropStyle(st.photoBase64);
+    const cropStyle = getPhotoCropStyle(st);
     return `
       <div class="student-card" onclick="openStudentDetail(${idx})">
         <div class="student-card-img-wrap">
@@ -895,7 +1006,7 @@ function openStudentDetail(idx) {
   const modalImg = document.getElementById("modal-student-img");
   modalImg.src = avatar;
   modalImg.alt = st.fullname;
-  modalImg.style.cssText = getPhotoCropStyle(st.photoBase64);
+  modalImg.style.cssText = getPhotoCropStyle(st);
   document.getElementById("modal-student-body").innerHTML = buildStudentBodyHtml(st);
 
   modal.style.display = "flex";

@@ -60,10 +60,11 @@ function ensureHeaderRow(sheet) {
       "10. ประวัติการศึกษา",
       "11. ตำแหน่งงานปัจจุบัน",
       "12. สถานที่ทำงาน",
-      "13. ลิงก์รูปถ่ายใน Google Drive"
+      "13. ลิงก์รูปถ่ายใน Google Drive",
+      "14. ตำแหน่งครอปรูป (คำนวณอัตโนมัติ)"
     ]);
 
-    var headerRange = sheet.getRange(1, 1, 1, 14);
+    var headerRange = sheet.getRange(1, 1, 1, 15);
     headerRange.setBackground("#1e3a8a");
     headerRange.setFontColor("#ffffff");
     headerRange.setFontWeight("bold");
@@ -105,7 +106,8 @@ function getStudentsJson() {
         education: row[10] || '',
         position: row[11] || '',
         workplace: row[12] || '',
-        photoBase64: row[13] || ''
+        photoBase64: row[13] || '',
+        photoCropStyle: row[14] || ''
       });
     }
 
@@ -151,7 +153,8 @@ function getStudentsDataForClient() {
         education: row[10] || '',
         position: row[11] || '',
         workplace: row[12] || '',
-        photoBase64: row[13] || ''
+        photoBase64: row[13] || '',
+        photoCropStyle: row[14] || ''
       });
     }
 
@@ -196,7 +199,8 @@ function saveStudentRecord(data) {
     data.education || "",
     data.position || "",
     data.workplace || "",
-    photoUrl
+    photoUrl,
+    data.photoCropStyle || ""
   ]);
 
   return { result: "success", photoUrl: photoUrl };

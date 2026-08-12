@@ -938,7 +938,8 @@ const PHOTO_CROP_OVERRIDES = {
   "1zt80yv_b2pFL-sYHN0oQgdkMc_yntjRI": "position:absolute; width:226.2%; height:127.2%; left:-63.5%; top:-27.2%;", // นภมณฑล สิบหมื่นเปี่ยม
   "1jC20dso-ZPYIaq-bsVVJP2c45uS3xD6a": "position:absolute; width:147.9%; height:148.2%; left:-24.8%; top:-22.3%;", // สุณิสา โตะวี
   "1rxBFB4KRK8XlMcgHvsnQzIGtIqkqghe2": "position:absolute; width:208.9%; height:104.6%; left:-55.4%; top:-4.6%;", // อนุศรา เศรษฐานุสรณ์
-  "1lKP1w90g912PK68NakLaXUupkCVq8ZGj": "position:absolute; width:455.6%; height:455.6%; left:-157.3%; top:-190.8%;" // นันทพงษ์ ลือกำลัง
+  "1lKP1w90g912PK68NakLaXUupkCVq8ZGj": "position:absolute; width:455.6%; height:455.6%; left:-157.3%; top:-190.8%;", // นันทพงษ์ ลือกำลัง
+  "1UoiGpp6cPZk5JcuwbEA69vfrG2fnDOBy": "position:absolute; width:228.1%; height:228.1%; left:-92.8%; top:-94.8%;" // พิไลรัตน์ ผลเงินชัย (ลงทะเบียนก่อนระบบครอปอัตโนมัติจะ deploy)
 };
 
 // ลำดับความสำคัญ: ค่าที่คำนวณตอนอัปโหลดแล้วบันทึกลง Sheet (st.photoCropStyle) มาก่อน

@@ -131,7 +131,7 @@ body {
   background: transparent;
   padding: 0;
   border: none;
-  margin-bottom: 16px;
+  margin-bottom: 6px;
   gap: 8px;
 }
 
@@ -479,19 +479,21 @@ body {
   color: #ffffff;
 }
 
-/* Export Buttons */
+/* Export Buttons: ไอคอนด้านบน ข้อความสั้นด้านล่าง เพื่อให้ปุ่มแคบและอยู่บรรทัดเดียวกับช่องค้นหาได้เสมอ */
 .btn-export {
-  padding: 8px 14px;
+  padding: 6px 12px;
   border-radius: var(--radius-sm);
   font-family: inherit;
-  font-size: 0.88rem;
-  font-weight: 500;
+  font-size: 0.7rem;
+  font-weight: 600;
   cursor: pointer;
   transition: var(--transition);
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 2px;
   border: none;
+  line-height: 1.2;
 }
 
 .btn-pdf {
@@ -523,15 +525,6 @@ body {
 .directory-toolbar .btn-export {
   flex-shrink: 0;
   white-space: nowrap;
-}
-
-@media (max-width: 640px) {
-  .btn-export-label {
-    display: none;
-  }
-  .directory-toolbar .btn-export {
-    padding: 8px 10px;
-  }
 }
 
 /* Directory / Cards Grid */
@@ -587,6 +580,7 @@ body {
   border-radius: var(--radius-sm);
   border: 2px solid var(--accent-gold);
   object-fit: cover;
+  object-position: center top;
   margin-bottom: 12px;
   background: #020617;
 }
@@ -741,6 +735,7 @@ body {
   width: 180px;
   height: 240px;
   object-fit: cover;
+  object-position: center top;
   border-radius: var(--radius-sm);
   border: 2px solid var(--accent-gold);
   margin-bottom: 16px;

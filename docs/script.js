@@ -741,6 +741,15 @@ function normalizeDriveImageUrl(url) {
   return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
 }
 
+// ดึง Drive file ID จากลิงก์รูป ใช้เป็นคีย์ระบุรูปแต่ละใบ (กันชื่อซ้ำ เช่นคนชื่อเดียวกันสองคน)
+function extractDriveFileId(url) {
+  if (!url) {
+    return null;
+  }
+  const match = url.match(/[?&]id=([^&]+)/) || url.match(/\/d\/([^/]+)/);
+  return match ? match[1] : null;
+}
+
 // 14c. แก้เบอร์โทรศัพท์ที่ Google Sheet ตัดเลข 0 หน้าออก (เพราะแปลงเป็นตัวเลข) ให้กลับมาขึ้นต้นด้วย 0
 function normalizePhoneDigits(raw) {
   let digits = String(raw || "").replace(/\D/g, "");
@@ -800,14 +809,35 @@ function buildStudentCardHtml(st) {
   `;
 }
 
-// 14f. ปรับซูม/ตำแหน่งรูปภาพเฉพาะราย เมื่อรูปต้นฉบับมีมุมกล้อง/สัดส่วนต่างจากคนอื่นมาก
+// 14f. ปรับซูม/ตำแหน่งรูปภาพเฉพาะราย เมื่อรูปต้นฉบับเป็นภาพเต็มตัวหรือคนมีขนาดเล็กมองไม่ชัด
 // (การครอปปกติแค่ object-fit/object-position ไม่พอ ต้องซูมเข้าเฉพาะจุดเพื่อให้ได้ขนาดหัว-อกใกล้เคียงคนอื่น)
+// คีย์เป็น Drive file ID ของรูป (ไม่ใช้ชื่อ เพราะมีบางคนชื่อซ้ำกัน) คำนวณจากตำแหน่งใบหน้าจริงเทียบกับรูปต้นแบบ
 const PHOTO_CROP_OVERRIDES = {
-  "อชิราวุฒิ หอมละออ": "position:absolute; width:155.2%; height:206.9%; left:-27.6%; top:-71.1%;"
+  "1cyB2nSjLTaOPj9o45tacZKcOAnBhCMOi": "position:absolute; width:109.2%; height:103.4%; left:-0.0%; top:-1.7%;", // ธนายุทธ ภูมิงาม
+  "13kjcBneHLpjGNLqWLRRBv5vpd0vS6wzp": "position:absolute; width:192.2%; height:256.2%; left:-62.8%; top:-84.1%;", // อชิราวุฒิ หอมละออ
+  "1lhx0Av3RE5tYh9vG-FFOi_VgJ6KsJvp4": "position:absolute; width:276.4%; height:276.4%; left:-111.9%; top:-72.1%;", // ตรีทศ แก้วไทรเกิด
+  "1FjEOBJSTrl_V_7EQKM4vAsg1ckAksrL-": "position:absolute; width:341.7%; height:256.2%; left:-66.6%; top:-83.1%;", // วสันต์ อุบลสะอาด
+  "1l2CR2J38dRgtetrZ3ufaNxaoEAej0GWM": "position:absolute; width:502.1%; height:502.2%; left:-171.3%; top:-194.8%;", // สุนันทา พลรักษา
+  "1Q0dZ7oTB-VXZi7og0CEfP9DdNYLDyCuJ": "position:absolute; width:126.8%; height:133.0%; left:-0.0%; top:-16.8%;", // เอกสิทธิ์ จันทราภัย
+  "1HGJPDA__oJXKA-Ku4r1IMa2x3hH9LGmy": "position:absolute; width:114.3%; height:116.6%; left:-6.4%; top:-6.0%;", // วรรณสิริ มณีรัตนโชติ
+  "1WFBIJAOF9wQdw7cIm29NlfswPjXSAsWL": "position:absolute; width:107.9%; height:115.0%; left:-3.3%; top:-5.8%;", // พัชริยา เอมดิษฐ์
+  "1dZvAkbAGwsXTwcZEWbjYC9EAiPpppVC3": "position:absolute; width:353.8%; height:396.8%; left:-115.3%; top:-165.9%;", // กมลทิพย์ พลากร
+  "1Py75DDyYN_kmdyx-H2ZLzYnGFqomf1os": "position:absolute; width:175.4%; height:162.9%; left:-47.9%; top:-39.5%;", // ปุญญิศา พรอำนวยทรัพย์
+  "1254Y1FPULmzJvSnO9yACItx3JepK-aLI": "position:absolute; width:341.7%; height:341.7%; left:-139.1%; top:-106.0%;", // ตรีทศ แก้วไทรเกิด (คนละรูปกับด้านบน)
+  "1QTEG7g_SL-jYkl8dIYUFYsCKFMZhu0gZ": "position:absolute; width:296.4%; height:296.4%; left:-97.9%; top:-143.5%;", // ธันยาภรณ์ สุขศรี
+  "14fY1ar91IBxZ-NJdSSp9oM11lCLg4doD": "position:absolute; width:482.3%; height:482.2%; left:-135.3%; top:-182.3%;", // กัญภัคนัฐ สีดาบุญ
+  "18ts7rwux9S3dmIfZWlZ6MP6yQ6oTbixD": "position:absolute; width:167.7%; height:223.6%; left:-33.5%; top:-91.5%;", // นทสรวง จันทศรีราช
+  "1sPCISEaoHUN-cnLhsH6OpP_jNcH1pEbK": "position:absolute; width:236.5%; height:315.4%; left:-66.2%; top:-166.9%;", // ปัทมา เดชเล
+  "1z7EOTXmiotoL2UInzmH4QrhOC_mb9bkD": "position:absolute; width:130.8%; height:117.7%; left:-16.4%; top:-9.6%;", // รุซลัน หัวแหลม
+  "1zt80yv_b2pFL-sYHN0oQgdkMc_yntjRI": "position:absolute; width:226.2%; height:127.2%; left:-63.5%; top:-27.2%;", // นภมณฑล สิบหมื่นเปี่ยม
+  "1jC20dso-ZPYIaq-bsVVJP2c45uS3xD6a": "position:absolute; width:147.9%; height:148.2%; left:-24.8%; top:-22.3%;", // สุณิสา โตะวี
+  "1rxBFB4KRK8XlMcgHvsnQzIGtIqkqghe2": "position:absolute; width:208.9%; height:104.6%; left:-55.4%; top:-4.6%;", // อนุศรา เศรษฐานุสรณ์
+  "1lKP1w90g912PK68NakLaXUupkCVq8ZGj": "position:absolute; width:455.6%; height:455.6%; left:-157.3%; top:-190.8%;" // นันทพงษ์ ลือกำลัง
 };
 
-function getPhotoCropStyle(fullname) {
-  return PHOTO_CROP_OVERRIDES[(fullname || "").trim()] || "";
+function getPhotoCropStyle(photoUrl) {
+  const fileId = extractDriveFileId(photoUrl);
+  return (fileId && PHOTO_CROP_OVERRIDES[fileId]) || "";
 }
 
 // 15. แสดงผลรายชื่อทำเนียบนิสิต (Directory Renderer)
@@ -839,7 +869,7 @@ function renderDirectory(filteredList = null) {
 
   grid.innerHTML = list.map((st, idx) => {
     const avatar = normalizeDriveImageUrl(st.photoBase64) || `https://ui-avatars.com/api/?name=${encodeURIComponent(st.fullname)}&background=1e3a8a&color=ffffff&size=128`;
-    const cropStyle = getPhotoCropStyle(st.fullname);
+    const cropStyle = getPhotoCropStyle(st.photoBase64);
     return `
       <div class="student-card" onclick="openStudentDetail(${idx})">
         <div class="student-card-img-wrap">
@@ -865,7 +895,7 @@ function openStudentDetail(idx) {
   const modalImg = document.getElementById("modal-student-img");
   modalImg.src = avatar;
   modalImg.alt = st.fullname;
-  modalImg.style.cssText = getPhotoCropStyle(st.fullname);
+  modalImg.style.cssText = getPhotoCropStyle(st.photoBase64);
   document.getElementById("modal-student-body").innerHTML = buildStudentBodyHtml(st);
 
   modal.style.display = "flex";

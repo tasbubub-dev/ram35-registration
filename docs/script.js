@@ -800,6 +800,16 @@ function buildStudentCardHtml(st) {
   `;
 }
 
+// 14f. ปรับซูม/ตำแหน่งรูปภาพเฉพาะราย เมื่อรูปต้นฉบับมีมุมกล้อง/สัดส่วนต่างจากคนอื่นมาก
+// (การครอปปกติแค่ object-fit/object-position ไม่พอ ต้องซูมเข้าเฉพาะจุดเพื่อให้ได้ขนาดหัว-อกใกล้เคียงคนอื่น)
+const PHOTO_CROP_OVERRIDES = {
+  "อชิราวุฒิ หอมละออ": "position:absolute; width:155.2%; height:206.9%; left:-27.6%; top:-71.1%;"
+};
+
+function getPhotoCropStyle(fullname) {
+  return PHOTO_CROP_OVERRIDES[(fullname || "").trim()] || "";
+}
+
 // 15. แสดงผลรายชื่อทำเนียบนิสิต (Directory Renderer)
 function renderDirectory(filteredList = null) {
   const grid = document.getElementById("directory-grid");
@@ -829,9 +839,12 @@ function renderDirectory(filteredList = null) {
 
   grid.innerHTML = list.map((st, idx) => {
     const avatar = normalizeDriveImageUrl(st.photoBase64) || `https://ui-avatars.com/api/?name=${encodeURIComponent(st.fullname)}&background=1e3a8a&color=ffffff&size=128`;
+    const cropStyle = getPhotoCropStyle(st.fullname);
     return `
       <div class="student-card" onclick="openStudentDetail(${idx})">
-        <img src="${avatar}" alt="${st.fullname}" class="student-card-img">
+        <div class="student-card-img-wrap">
+          <img src="${avatar}" alt="${st.fullname}" class="student-card-img"${cropStyle ? ` style="${cropStyle}"` : ""}>
+        </div>
         <div class="student-card-body">
           ${buildStudentCardHtml(st)}
         </div>
@@ -849,8 +862,10 @@ function openStudentDetail(idx) {
   }
 
   const avatar = normalizeDriveImageUrl(st.photoBase64) || `https://ui-avatars.com/api/?name=${encodeURIComponent(st.fullname)}&background=1e3a8a&color=ffffff&size=256`;
-  document.getElementById("modal-student-img").src = avatar;
-  document.getElementById("modal-student-img").alt = st.fullname;
+  const modalImg = document.getElementById("modal-student-img");
+  modalImg.src = avatar;
+  modalImg.alt = st.fullname;
+  modalImg.style.cssText = getPhotoCropStyle(st.fullname);
   document.getElementById("modal-student-body").innerHTML = buildStudentBodyHtml(st);
 
   modal.style.display = "flex";

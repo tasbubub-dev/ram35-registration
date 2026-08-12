@@ -284,7 +284,9 @@
     <div id="student-detail-modal" class="modal-overlay no-print" style="display: none;" onclick="closeStudentDetail()">
       <div class="modal-box" onclick="event.stopPropagation()">
         <button type="button" class="modal-close" onclick="closeStudentDetail()">&times;</button>
-        <img id="modal-student-img" src="" alt="" class="modal-student-img">
+        <div class="modal-student-img-wrap">
+          <img id="modal-student-img" src="" alt="" class="modal-student-img">
+        </div>
         <div id="modal-student-body" class="modal-student-body"></div>
       </div>
     </div>

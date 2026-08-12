@@ -573,16 +573,24 @@ body {
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
 }
 
-.student-card-img {
+.student-card-img-wrap {
   width: 60%;
   aspect-ratio: 3 / 4;
   flex-shrink: 0;
   border-radius: var(--radius-sm);
   border: 2px solid var(--accent-gold);
-  object-fit: cover;
-  object-position: center top;
+  overflow: hidden;
+  position: relative;
   margin-bottom: 12px;
   background: #020617;
+}
+
+.student-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
 }
 
 .student-card-body {
@@ -731,15 +739,23 @@ body {
   background: rgba(255, 255, 255, 0.16);
 }
 
-.modal-student-img {
+.modal-student-img-wrap {
   width: 180px;
   height: 240px;
-  object-fit: cover;
-  object-position: center top;
   border-radius: var(--radius-sm);
   border: 2px solid var(--accent-gold);
+  overflow: hidden;
+  position: relative;
   margin-bottom: 16px;
   background: #020617;
+}
+
+.modal-student-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
 }
 
 .modal-student-body {

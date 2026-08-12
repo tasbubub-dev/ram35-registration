@@ -55,56 +55,33 @@ body {
   margin: 0 auto;
 }
 
-/* Header & Banner */
+/* Header & Banner: กรอบเดียว แคบสุด (fit-content) ตรงกลางหน้า */
 .header-banner {
-  background: linear-gradient(135deg, rgba(30, 58, 138, 0.85), rgba(15, 23, 42, 0.95)),
-              url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><polygon points="50,0 100,50 50,100 0,50" fill="rgba(217,119,6,0.03)"/></svg>');
-  border: 1px solid var(--card-border);
-  border-bottom: 3px solid var(--accent-gold);
-  border-radius: var(--radius-lg);
-  padding: 36px 28px;
-  text-align: center;
-  margin-bottom: 24px;
-  box-shadow: var(--shadow-main);
-  backdrop-filter: blur(16px);
-  position: relative;
-  overflow: hidden;
-}
-
-.header-banner::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, var(--gold-glow) 0%, transparent 70%);
-  pointer-events: none;
-  animation: pulseGlow 8s infinite alternate;
-}
-
-@keyframes pulseGlow {
-  0% { transform: scale(0.9); opacity: 0.5; }
-  100% { transform: scale(1.1); opacity: 0.9; }
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
 }
 
 .ru-badge {
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  background: rgba(217, 119, 6, 0.15);
+  max-width: 100%;
+  background: linear-gradient(135deg, rgba(30, 58, 138, 0.85), rgba(15, 23, 42, 0.95));
   color: #fef08a;
   border: 1px solid rgba(245, 158, 11, 0.4);
-  padding: 8px 20px;
+  border-bottom: 3px solid var(--accent-gold);
+  padding: 8px 18px;
   border-radius: var(--radius-lg);
   font-size: 0.9rem;
   font-weight: 500;
   letter-spacing: 0.5px;
+  box-shadow: var(--shadow-main);
 }
 
 .ru-badge .ru-logo {
-  width: 62px;
-  height: 62px;
+  width: 54px;
+  height: 54px;
   object-fit: contain;
   flex-shrink: 0;
 }
@@ -115,10 +92,35 @@ body {
   align-items: center;
   gap: 2px;
   text-align: center;
+  min-width: 0;
+}
+
+.ru-badge-line {
+  white-space: nowrap;
 }
 
 .ru-badge-line:first-child {
   font-weight: 600;
+}
+
+@media (max-width: 560px) {
+  .ru-badge {
+    gap: 8px;
+    padding: 6px 12px;
+  }
+  .ru-badge .ru-logo {
+    width: 40px;
+    height: 40px;
+  }
+  .ru-badge-line {
+    font-size: 0.62rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .ru-badge-line {
+    font-size: 0.54rem;
+  }
 }
 
 /* Nav Tabs */
@@ -129,7 +131,7 @@ body {
   background: transparent;
   padding: 0;
   border: none;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   gap: 8px;
 }
 
@@ -161,15 +163,7 @@ body {
   background: rgba(255, 255, 255, 0.05);
 }
 
-/* ทำเนียบรุ่น = แท็บหลัก อยู่กลางหน้า */
-#tab-directory {
-  font-size: 1.1rem;
-  padding: 12px 28px;
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid var(--card-border);
-}
-
-/* กรอกข้อมูลการลงทะเบียน = ปุ่มเล็ก เยื้องขวาสุด อยู่บรรทัดถัดไป */
+/* กรอกข้อมูลการลงทะเบียน = ปุ่มเล็ก เยื้องขวาสุด */
 #tab-form {
   align-self: flex-end;
   font-size: 0.78rem;
@@ -190,8 +184,8 @@ body {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: var(--radius-lg);
-  padding: 32px 28px;
-  margin-bottom: 24px;
+  padding: 22px 20px;
+  margin-bottom: 20px;
   box-shadow: var(--shadow-main);
   backdrop-filter: blur(12px);
 }
@@ -232,9 +226,7 @@ body {
   .col-8, .col-6, .col-5, .col-4, .col-3 {
     grid-column: span 12;
   }
-  .header-title { font-size: 1.45rem; }
-  .header-subtitle { font-size: 1rem; }
-  .card-section { padding: 20px 16px; }
+  .card-section { padding: 16px 14px; }
 }
 
 /* Form Controls */
@@ -513,6 +505,34 @@ body {
   color: #ffffff;
 }
 .btn-excel:hover { background: #047857; }
+
+/* แถบเครื่องมือทำเนียบ: ช่องค้นหา + ปุ่ม PDF/Excel อยู่บรรทัดเดียวกันเสมอ */
+.directory-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.directory-toolbar #search-directory {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.directory-toolbar .btn-export {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .btn-export-label {
+    display: none;
+  }
+  .directory-toolbar .btn-export {
+    padding: 8px 10px;
+  }
+}
 
 /* Directory / Cards Grid */
 /* จำกัดพื้นที่แสดงผลไว้พอประมาณ ไม่ให้ยาวเกินไป ส่วนที่เหลือเลื่อนดูได้ */

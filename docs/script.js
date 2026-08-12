@@ -130,7 +130,6 @@ document.addEventListener("DOMContentLoaded", () => {
 // 1. สลับหน้าแท็บ (Form <-> Directory)
 function switchTab(tabName) {
   const formTab = document.getElementById("tab-form");
-  const dirTab = document.getElementById("tab-directory");
   const formView = document.getElementById("view-form");
   const dirView = document.getElementById("view-directory");
 
@@ -140,11 +139,9 @@ function switchTab(tabName) {
 
   if (tabName === "form") {
     formTab.classList.add("active");
-    dirTab.classList.remove("active");
     formView.style.display = "block";
     dirView.style.display = "none";
   } else {
-    dirTab.classList.add("active");
     formTab.classList.remove("active");
     dirView.style.display = "block";
     formView.style.display = "none";
@@ -635,27 +632,23 @@ function updateDirectoryStatus(message, state = "loading") {
 }
 
 function toggleDirectoryVisibility(hasData) {
-  const tab = document.getElementById("tab-directory");
   const grid = document.getElementById("directory-grid");
   const placeholder = document.getElementById("directory-placeholder");
 
-  if (!tab || !grid || !placeholder) {
+  if (!grid || !placeholder) {
     return;
   }
 
   if (!SHOW_DIRECTORY_TAB) {
-    tab.style.display = "none";
     grid.style.display = "none";
     placeholder.style.display = "none";
     return;
   }
 
   if (hasData) {
-    tab.style.display = "flex";
     grid.style.display = "grid";
     placeholder.style.display = "none";
   } else {
-    tab.style.display = "none";
     grid.style.display = "none";
     placeholder.style.display = "block";
   }

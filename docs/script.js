@@ -866,7 +866,13 @@ function closeStudentDetail() {
   document.body.style.overflow = "";
 }
 
-// 16. ค้นหาใน ทำเนียบ Directory
+// 16. ค้นหาใน ทำเนียบ Directory: ค้นจากคำ/วลี/ส่วนหนึ่งของคำ ในข้อมูลทุกส่วนของแต่ละคน
+const DIRECTORY_SEARCH_FIELDS = [
+  "finalPrefix", "fullname", "nickname", "gender", "age",
+  "phone", "lineId", "email", "address", "education",
+  "position", "workplace"
+];
+
 function filterDirectory(query) {
   const q = query.toLowerCase().trim();
   if (!q) {
@@ -875,15 +881,8 @@ function filterDirectory(query) {
   }
 
   const filtered = studentDatabase.filter((st) => {
-    return (
-      st.fullname.toLowerCase().includes(q) ||
-      st.nickname.toLowerCase().includes(q) ||
-      st.position.toLowerCase().includes(q) ||
-      st.workplace.toLowerCase().includes(q) ||
-      st.phone.includes(q) ||
-      st.address.toLowerCase().includes(q) ||
-      st.email.toLowerCase().includes(q)
-    );
+    return DIRECTORY_SEARCH_FIELDS.some((field) => String(st[field] || "").toLowerCase().includes(q))
+      || formatPhoneDisplay(st.phone).toLowerCase().includes(q);
   });
 
   renderDirectory(filtered);

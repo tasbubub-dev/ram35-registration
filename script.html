@@ -803,7 +803,7 @@ function buildStudentCardHtml(st) {
       <p><strong>หน่วยงาน:</strong> ${st.workplace}</p>
       <p class="student-card-phone"><strong>โทร:</strong> ${formatPhoneDisplay(st.phone)} ${callBtn}</p>
     </div>
-    <span class="student-card-hint">คลิกเพื่อดูรายละเอียดเพิ่มเติม</span>
+    <span class="student-card-hint">คลิกดูรายละเอียด</span>
   `;
 }
 

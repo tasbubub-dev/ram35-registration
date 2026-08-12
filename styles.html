@@ -533,11 +533,18 @@ body {
   }
 }
 
+/* จอมือถือแคบ: การ์ด 2 คอลัมน์ไม่พอสำหรับเบอร์โทรขนาดเท่าบรรทัดอื่น จึงเหลือ 1 คอลัมน์ */
+@media (max-width: 480px) {
+  .directory-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 .student-card {
   background: rgba(15, 23, 42, 0.7);
   border: 1px solid var(--card-border);
   border-radius: var(--radius-md);
-  padding: 20px;
+  padding: 20px 20px 34px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -602,14 +609,12 @@ body {
 }
 
 .student-card-hint {
-  width: 100%;
-  margin-top: 10px;
-  padding-top: 8px;
-  border-top: 1px dashed rgba(255, 255, 255, 0.08);
-  font-size: 0.75rem;
+  position: absolute;
+  right: 16px;
+  bottom: 8px;
+  font-size: 0.72rem;
   font-style: italic;
   color: var(--text-muted);
-  text-align: center;
 }
 
 .btn-call {
@@ -656,10 +661,6 @@ body {
 }
 
 @media (max-width: 768px) {
-  .student-card-phone {
-    font-size: 0.72rem;
-    gap: 3px;
-  }
   .btn-call-lg {
     width: 26px;
     height: 26px;

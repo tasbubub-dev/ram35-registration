@@ -91,45 +91,34 @@ body {
 .ru-badge {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   background: rgba(217, 119, 6, 0.15);
   color: #fef08a;
   border: 1px solid rgba(245, 158, 11, 0.4);
-  padding: 6px 16px;
-  border-radius: 50px;
+  padding: 8px 20px;
+  border-radius: var(--radius-lg);
   font-size: 0.9rem;
   font-weight: 500;
-  margin-bottom: 14px;
   letter-spacing: 0.5px;
 }
 
 .ru-badge .ru-logo {
-  width: 42px;
-  height: 42px;
+  width: 62px;
+  height: 62px;
   object-fit: contain;
+  flex-shrink: 0;
 }
 
-.header-title {
-  font-size: 1.85rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin-bottom: 8px;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-  line-height: 1.35;
+.ru-badge-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
 }
 
-.header-subtitle {
-  font-size: 1.15rem;
-  color: #fde047;
-  font-weight: 500;
-  margin-bottom: 12px;
-}
-
-.header-desc {
-  font-size: 0.95rem;
-  color: var(--text-sub);
-  max-width: 650px;
-  margin: 0 auto;
+.ru-badge-line:first-child {
+  font-weight: 600;
 }
 
 /* Nav Tabs */
@@ -526,22 +515,21 @@ body {
 .btn-excel:hover { background: #047857; }
 
 /* Directory / Cards Grid */
-/* จำกัดพื้นที่แสดงผลไว้พอดี 2 แถว (การ์ดสัดส่วน 3:4) ไม่ให้แถวที่ 3 โผล่มาเล็กน้อย ส่วนที่เหลือเลื่อนดูได้ */
+/* จำกัดพื้นที่แสดงผลไว้พอประมาณ ไม่ให้ยาวเกินไป ส่วนที่เหลือเลื่อนดูได้ */
 .directory-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
-  container-type: inline-size;
-  max-height: calc((100cqw - 40px) * 8 / 9 + 20px);
+  max-height: 78vh;
   overflow-y: auto;
   scrollbar-gutter: stable;
 }
 
 @media (max-width: 768px) {
   .directory-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px;
-    max-height: calc((100cqw - 14px) * 4 / 3 + 14px);
+    max-height: 82vh;
   }
 }
 
@@ -556,8 +544,6 @@ body {
   text-align: center;
   transition: var(--transition);
   position: relative;
-  overflow: hidden;
-  aspect-ratio: 3 / 4;
   cursor: pointer;
 }
 
@@ -580,8 +566,6 @@ body {
 
 .student-card-body {
   width: 100%;
-  min-height: 0;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -617,6 +601,17 @@ body {
   gap: 4px;
 }
 
+.student-card-hint {
+  width: 100%;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--text-muted);
+  text-align: center;
+}
+
 .btn-call {
   display: inline-flex;
   align-items: center;
@@ -634,6 +629,42 @@ body {
 
 .btn-call:hover {
   background: rgba(16, 185, 129, 0.3);
+}
+
+/* บรรทัดเบอร์โทร: บังคับให้เบอร์และปุ่มโทรอยู่บรรทัดเดียวกันเสมอ ปุ่มย่อขนาดลงเพื่อให้พอดีแทนการตัดบรรทัด */
+.student-card-phone {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  gap: 4px;
+}
+
+.student-card-phone .btn-call {
+  flex-shrink: 0;
+  margin-left: 2px;
+}
+
+.btn-call-lg {
+  width: 31px;
+  height: 31px;
+  padding: 0;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 1.17rem;
+  line-height: 1;
+}
+
+@media (max-width: 768px) {
+  .student-card-phone {
+    font-size: 0.72rem;
+    gap: 3px;
+  }
+  .btn-call-lg {
+    width: 26px;
+    height: 26px;
+    font-size: 0.94rem;
+  }
 }
 
 /* Modal: ขยายดูข้อมูลนักศึกษา */
@@ -809,5 +840,8 @@ body {
   .student-card-info {
     color: #334155 !important;
     border-top-color: #e2e8f0 !important;
+  }
+  .student-card-hint {
+    display: none !important;
   }
 }

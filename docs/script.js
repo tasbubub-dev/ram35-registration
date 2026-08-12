@@ -769,7 +769,7 @@ function formatPhoneDisplay(raw) {
 function buildStudentBodyHtml(st) {
   const phoneDigits = normalizePhoneDigits(st.phone);
   const callBtn = phoneDigits
-    ? `<a class="btn-call" href="tel:${phoneDigits}" onclick="event.stopPropagation()">📞 โทร</a>`
+    ? `<a class="btn-call btn-call-lg" href="tel:${phoneDigits}" onclick="event.stopPropagation()" aria-label="โทรหา ${st.finalPrefix}${st.fullname}">📞</a>`
     : "";
 
   return `
@@ -779,12 +779,31 @@ function buildStudentBodyHtml(st) {
       <p><strong>อายุ:</strong> ${st.age} ปี (${st.gender})</p>
       <p><strong>ตำแหน่ง:</strong> ${st.position}</p>
       <p><strong>หน่วยงาน:</strong> ${st.workplace}</p>
-      <p><strong>โทรศัพท์:</strong> ${formatPhoneDisplay(st.phone)} ${callBtn}</p>
+      <p class="student-card-phone"><strong>โทรศัพท์:</strong> ${formatPhoneDisplay(st.phone)} ${callBtn}</p>
       <p><strong>Line ID:</strong> ${st.lineId}</p>
       <p><strong>E-Mail:</strong> ${st.email}</p>
       <p style="margin-top: 4px;"><strong>ที่อยู่:</strong> ${st.address}</p>
       <p style="margin-top: 4px; font-size: 0.8rem; color: var(--text-muted);"><strong>การศึกษา:</strong> ${st.education}</p>
     </div>
+  `;
+}
+
+// 14e. สร้าง HTML ส่วนข้อมูลย่อสำหรับการ์ดในหน้าทำเนียบ (รายละเอียดเต็มดูได้จากการคลิกเปิด Modal)
+function buildStudentCardHtml(st) {
+  const phoneDigits = normalizePhoneDigits(st.phone);
+  const callBtn = phoneDigits
+    ? `<a class="btn-call btn-call-lg" href="tel:${phoneDigits}" onclick="event.stopPropagation()" aria-label="โทรหา ${st.finalPrefix}${st.fullname}">📞</a>`
+    : "";
+
+  return `
+    <h4 class="student-card-name">${st.finalPrefix}${st.fullname}</h4>
+    <span class="student-card-nickname">ชื่อเล่น: ${st.nickname || '-'}</span>
+    <div class="student-card-info">
+      <p><strong>ตำแหน่ง:</strong> ${st.position}</p>
+      <p><strong>หน่วยงาน:</strong> ${st.workplace}</p>
+      <p class="student-card-phone"><strong>โทร:</strong> ${formatPhoneDisplay(st.phone)} ${callBtn}</p>
+    </div>
+    <span class="student-card-hint">คลิกเพื่อดูรายละเอียดเพิ่มเติม</span>
   `;
 }
 
@@ -821,7 +840,7 @@ function renderDirectory(filteredList = null) {
       <div class="student-card" onclick="openStudentDetail(${idx})">
         <img src="${avatar}" alt="${st.fullname}" class="student-card-img">
         <div class="student-card-body">
-          ${buildStudentBodyHtml(st)}
+          ${buildStudentCardHtml(st)}
         </div>
       </div>
     `;

@@ -508,6 +508,54 @@ body {
 }
 .btn-excel:hover { background: #047857; }
 
+/* แถบยืนยันก่อนพิมพ์: โผล่มาตอนกดปุ่ม PDF ให้รอรูปโหลดขึ้นจอครบก่อน แล้วค่อยกดพิมพ์เองอีกที */
+.pdf-print-banner {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  border-radius: var(--radius-sm);
+  background: rgba(217, 119, 6, 0.12);
+  border: 1px solid rgba(217, 119, 6, 0.4);
+  font-size: 0.85rem;
+  color: var(--text-primary, #e2e8f0);
+}
+
+.pdf-print-banner-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn-print-confirm {
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: var(--accent-gold);
+  color: #1e1b06;
+}
+.btn-print-confirm:hover { background: var(--accent-gold-hover); }
+.btn-print-confirm:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-print-cancel {
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+}
+
 /* แถบเครื่องมือทำเนียบ: ช่องค้นหา + ปุ่ม PDF/Excel อยู่บรรทัดเดียวกันเสมอ */
 .directory-toolbar {
   display: flex;

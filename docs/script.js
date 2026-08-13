@@ -1066,7 +1066,11 @@ function resetForm() {
   }
 }
 
-// 18. ดาวน์โหลด PDF
+// 18. ดาวน์โหลด PDF — สองขั้นตอน: (1) โหลดรูปให้ครบขึ้นจอก่อน ให้ผู้ใช้เห็นเอง (2) ค่อยกดพิมพ์เอง
+// ไม่สั่ง window.print() ทันที เพราะกด print ก่อนรูปโหลดเสร็จ (โหลดจาก Google Drive หลายสิบรูปพร้อมกัน)
+// ทำให้ PDF มีช่องรูปว่างๆ ปุ่ม "พิมพ์" จะกดได้ก็ต่อเมื่อเห็นรูปขึ้นจอครบ (หรือรอจนหมดเวลา) แล้วเท่านั้น
+let pdfPrintReady = false;
+
 async function exportPDF() {
   if (studentDatabase.length === 0) {
     showToast("ยังไม่มีข้อมูลสำหรับดาวน์โหลดเป็น PDF", "error");
@@ -1077,36 +1081,76 @@ async function exportPDF() {
     year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit"
   });
 
-  // รอให้รูปภาพในทำเนียบ (โหลดจาก Google Drive) โหลดเสร็จก่อน ไม่งั้น window.print()
-  // จะแคปหน้าจอไปก่อนที่บางรูปจะโหลดทัน ทำให้ PDF มีช่องรูปว่างๆ
-  // ใช้เวลารอนานพอสมควร เพราะรูปหลายสิบรูปโหลดจาก Drive พร้อมกัน เบราว์เซอร์จำกัดจำนวน connection ต่อโฮสต์
-  const btn = document.getElementById("btn-export-pdf");
-  const btnLabel = btn ? btn.querySelector(".btn-export-label") : null;
-  const originalLabel = btnLabel ? btnLabel.textContent : "";
-  if (btn) btn.disabled = true;
-  if (btnLabel) btnLabel.textContent = "กำลังเตรียมรูป...";
+  const banner = document.getElementById("pdf-print-banner");
+  const statusEl = document.getElementById("pdf-print-status");
+  const confirmBtn = document.getElementById("btn-print-confirm");
+  const pdfBtn = document.getElementById("btn-export-pdf");
 
-  try {
-    await waitForDirectoryImages(20000);
-    window.print();
-  } finally {
-    if (btn) btn.disabled = false;
-    if (btnLabel) btnLabel.textContent = originalLabel;
+  pdfPrintReady = false;
+  if (confirmBtn) confirmBtn.disabled = true;
+  if (pdfBtn) pdfBtn.disabled = true;
+  if (banner) banner.style.display = "flex";
+
+  const grid = document.getElementById("directory-grid");
+  const allImgs = grid ? Array.from(grid.querySelectorAll("img")) : [];
+  const total = allImgs.length;
+
+  const updateStatus = (loaded) => {
+    if (!statusEl) return;
+    statusEl.textContent = total === 0
+      ? "ไม่มีรูปภาพในทำเนียบ"
+      : `กำลังโหลดรูปภาพขึ้นจอ... (${loaded}/${total}) เลื่อนดูด้านล่างเพื่อตรวจสอบก่อนพิมพ์`;
+  };
+  updateStatus(allImgs.filter((img) => img.complete).length);
+
+  await waitForDirectoryImages(20000, (loaded) => updateStatus(loaded));
+
+  const failed = allImgs.filter((img) => img.complete && img.naturalWidth === 0).length;
+  if (statusEl) {
+    statusEl.textContent = failed > 0
+      ? `โหลดรูปได้ ${total - failed}/${total} รูป มี ${failed} รูปโหลดไม่สำเร็จ ตรวจสอบด้านล่างก่อนตัดสินใจพิมพ์`
+      : `รูปภาพครบแล้ว (${total}/${total}) เลื่อนดูด้านล่างให้แน่ใจ แล้วกดพิมพ์ได้เลย`;
   }
+
+  pdfPrintReady = true;
+  if (confirmBtn) confirmBtn.disabled = false;
+  if (pdfBtn) pdfBtn.disabled = false;
 }
 
-// 18b. รอรูปภาพทั้งหมดใน grid ทำเนียบให้โหลดเสร็จ (หรือ error) ก่อน ภายในเวลาไม่เกิน timeoutMs
-function waitForDirectoryImages(timeoutMs = 8000) {
+// 18b. ผู้ใช้ตรวจดูรูปในทำเนียบด้วยตาตัวเองแล้ว กดยืนยันพิมพ์จริง
+function confirmPrintPDF() {
+  if (!pdfPrintReady) return;
+  window.print();
+}
+
+// 18c. ยกเลิกการเตรียมพิมพ์ ปิดแถบแจ้งเตือนโดยไม่พิมพ์
+function cancelPrintPDF() {
+  const banner = document.getElementById("pdf-print-banner");
+  if (banner) banner.style.display = "none";
+  pdfPrintReady = false;
+}
+
+// 18d. รอรูปภาพทั้งหมดใน grid ทำเนียบให้โหลดเสร็จ (หรือ error) ก่อน ภายในเวลาไม่เกิน timeoutMs
+// เรียก onProgress(loadedCount) ทุกครั้งที่มีรูปโหลดเสร็จเพิ่ม เพื่ออัปเดตสถานะให้ผู้ใช้เห็นความคืบหน้า
+function waitForDirectoryImages(timeoutMs = 8000, onProgress = null) {
   const grid = document.getElementById("directory-grid");
-  const pending = grid ? Array.from(grid.querySelectorAll("img")).filter((img) => !img.complete) : [];
+  const allImgs = grid ? Array.from(grid.querySelectorAll("img")) : [];
+  const pending = allImgs.filter((img) => !img.complete);
   if (pending.length === 0) {
     return Promise.resolve();
   }
 
+  let loadedCount = allImgs.length - pending.length;
+  const notifyProgress = () => {
+    loadedCount += 1;
+    if (onProgress) onProgress(loadedCount);
+  };
+
   return Promise.race([
     Promise.all(pending.map((img) => new Promise((resolve) => {
-      img.addEventListener("load", resolve, { once: true });
-      img.addEventListener("error", resolve, { once: true });
+      const done = () => { notifyProgress(); resolve(); };
+      img.addEventListener("load", done, { once: true });
+      img.addEventListener("error", done, { once: true });
     }))),
     new Promise((resolve) => setTimeout(resolve, timeoutMs))
   ]);

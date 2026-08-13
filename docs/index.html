@@ -258,6 +258,14 @@
           </button>
         </div>
 
+        <div class="pdf-print-banner no-print" id="pdf-print-banner">
+          <span id="pdf-print-status">กำลังโหลดรูปภาพให้ครบก่อนพิมพ์...</span>
+          <div class="pdf-print-banner-actions">
+            <button type="button" class="btn-print-confirm" id="btn-print-confirm" onclick="confirmPrintPDF()" disabled>พิมพ์ / บันทึกเป็น PDF</button>
+            <button type="button" class="btn-print-cancel" onclick="cancelPrintPDF()">ยกเลิก</button>
+          </div>
+        </div>
+
         <div class="printable-header" style="display: none;">
           <h2 style="text-align: center; margin-bottom: 4px; color: #1e3a8a;">ทำเนียบนิสิตปริญญาโท นิติศาสตร์ (กฎหมายมหาชน) มหาวิทยาลัยรามคำแหง รุ่น 35</h2>
           <p style="text-align: center; margin-bottom: 20px; font-size: 0.9rem; color: #475569;">พิมพ์เมื่อวันที่: <span id="print-date"></span></p>

@@ -939,7 +939,9 @@ const PHOTO_CROP_OVERRIDES = {
   "1jC20dso-ZPYIaq-bsVVJP2c45uS3xD6a": "position:absolute; width:147.9%; height:148.2%; left:-24.8%; top:-22.3%;", // สุณิสา โตะวี
   "1rxBFB4KRK8XlMcgHvsnQzIGtIqkqghe2": "position:absolute; width:208.9%; height:104.6%; left:-55.4%; top:-4.6%;", // อนุศรา เศรษฐานุสรณ์
   "1lKP1w90g912PK68NakLaXUupkCVq8ZGj": "position:absolute; width:455.6%; height:455.6%; left:-157.3%; top:-190.8%;", // นันทพงษ์ ลือกำลัง
-  "1UoiGpp6cPZk5JcuwbEA69vfrG2fnDOBy": "position:absolute; width:228.1%; height:228.1%; left:-92.8%; top:-94.8%;" // พิไลรัตน์ ผลเงินชัย (ลงทะเบียนก่อนระบบครอปอัตโนมัติจะ deploy)
+  "1UoiGpp6cPZk5JcuwbEA69vfrG2fnDOBy": "position:absolute; width:228.1%; height:228.1%; left:-92.8%; top:-94.8%;", // พิไลรัตน์ ผลเงินชัย (ลงทะเบียนก่อนระบบครอปอัตโนมัติจะ deploy)
+  "1Y7kmCRqoYxSAIeSU0RtT4Muw4pJdAKCD": "position:absolute; width:272.1%; height:272.1%; left:-95.6%; top:-59.9%;", // กฤษฎา สายทอง
+  "1JBIAu4M4I2rqBPuG55yIKvJV3q_u8yAj": "position:absolute; width:405.7%; height:308.1%; left:-48.3%; top:-96.0%;" // เสาวนีย์ ทองขำ
 };
 
 // ลำดับความสำคัญ: ค่าที่คำนวณตอนอัปโหลดแล้วบันทึกลง Sheet (st.photoCropStyle) มาก่อน
@@ -1077,8 +1079,20 @@ async function exportPDF() {
 
   // รอให้รูปภาพในทำเนียบ (โหลดจาก Google Drive) โหลดเสร็จก่อน ไม่งั้น window.print()
   // จะแคปหน้าจอไปก่อนที่บางรูปจะโหลดทัน ทำให้ PDF มีช่องรูปว่างๆ
-  await waitForDirectoryImages();
-  window.print();
+  // ใช้เวลารอนานพอสมควร เพราะรูปหลายสิบรูปโหลดจาก Drive พร้อมกัน เบราว์เซอร์จำกัดจำนวน connection ต่อโฮสต์
+  const btn = document.getElementById("btn-export-pdf");
+  const btnLabel = btn ? btn.querySelector(".btn-export-label") : null;
+  const originalLabel = btnLabel ? btnLabel.textContent : "";
+  if (btn) btn.disabled = true;
+  if (btnLabel) btnLabel.textContent = "กำลังเตรียมรูป...";
+
+  try {
+    await waitForDirectoryImages(20000);
+    window.print();
+  } finally {
+    if (btn) btn.disabled = false;
+    if (btnLabel) btnLabel.textContent = originalLabel;
+  }
 }
 
 // 18b. รอรูปภาพทั้งหมดใน grid ทำเนียบให้โหลดเสร็จ (หรือ error) ก่อน ภายในเวลาไม่เกิน timeoutMs

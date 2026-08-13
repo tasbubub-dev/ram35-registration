@@ -1065,7 +1065,7 @@ function resetForm() {
 }
 
 // 18. ดาวน์โหลด PDF
-function exportPDF() {
+async function exportPDF() {
   if (studentDatabase.length === 0) {
     showToast("ยังไม่มีข้อมูลสำหรับดาวน์โหลดเป็น PDF", "error");
     return;
@@ -1075,7 +1075,27 @@ function exportPDF() {
     year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit"
   });
 
+  // รอให้รูปภาพในทำเนียบ (โหลดจาก Google Drive) โหลดเสร็จก่อน ไม่งั้น window.print()
+  // จะแคปหน้าจอไปก่อนที่บางรูปจะโหลดทัน ทำให้ PDF มีช่องรูปว่างๆ
+  await waitForDirectoryImages();
   window.print();
+}
+
+// 18b. รอรูปภาพทั้งหมดใน grid ทำเนียบให้โหลดเสร็จ (หรือ error) ก่อน ภายในเวลาไม่เกิน timeoutMs
+function waitForDirectoryImages(timeoutMs = 8000) {
+  const grid = document.getElementById("directory-grid");
+  const pending = grid ? Array.from(grid.querySelectorAll("img")).filter((img) => !img.complete) : [];
+  if (pending.length === 0) {
+    return Promise.resolve();
+  }
+
+  return Promise.race([
+    Promise.all(pending.map((img) => new Promise((resolve) => {
+      img.addEventListener("load", resolve, { once: true });
+      img.addEventListener("error", resolve, { once: true });
+    }))),
+    new Promise((resolve) => setTimeout(resolve, timeoutMs))
+  ]);
 }
 
 // 19. ดาวน์โหลด Excel / CSV (พร้อม UTF-8 BOM)
